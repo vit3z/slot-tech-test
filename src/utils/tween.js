@@ -1,9 +1,7 @@
 
 import { TweenMax } from "gsap";
 import { Power0, Power1, Power2, Power3, Power4, Back, Bounce, Elastic, Circ, Expo, Sine, SlowMo, SteppedEase, RoughEase } from "gsap";
-/**
- * 
- */
+
 export const Easings = Object.freeze({
     Linear: Power0,
     Quad: Power1,
@@ -20,6 +18,7 @@ export const Easings = Object.freeze({
     Stepped: SteppedEase,
     Rough: RoughEase
 });
+
 
 export class Tween {
      /**

@@ -3,12 +3,11 @@ import { Timer } from "./timer.js";
 import * as PIXI from "pixi.js";
 
 /**
+ * timer manager creates and manages any timers 
  * 
+ * @class
  */
 class TimerManager {
-    /**
-     * 
-     */
     constructor() {
         this._masterTime = 0;
         this._timers = [];
@@ -16,7 +15,7 @@ class TimerManager {
     }
     
     /**
-     * 
+     * links timer manager to pixi ticker updates
      */
     init() {
         renderer.app.ticker.add(() => {            ;
@@ -25,9 +24,10 @@ class TimerManager {
     }
 
     /**
+     * Start an awaitable timer
      * 
-     * @param {*} delay 
-     * @returns 
+     * @param {number} delay - delay in milliseconds
+     * @async
      */
     async startTimer(delay) {
         const promise = new Promise((resolve) => {
@@ -39,8 +39,10 @@ class TimerManager {
     }
 
     /**
+     * update called every frame
      * 
-     * @param {*} delta 
+     * @param {number} delta - number of milliseconds since last update call
+     * @private
      */
     _onUpdate(delta) {
 

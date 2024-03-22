@@ -1,7 +1,15 @@
 import { Symbol } from "./symbol.js";
 
 /**
+ * @typedef SymbolObject
+ * @property {number} id - Id of the symbol
+ * @property {string} name - name of the symbol
+ */
+
+/**
+ * Symbol store used to create all symbols at initialisation for use through the game
  * 
+ * @class
  */
 class SymbolStore {
     constructor() {
@@ -10,9 +18,9 @@ class SymbolStore {
 
     /**
      * 
-     * @param {*} symbolIds 
-     * @param {*} reels 
-     * @param {*} rows 
+     * @param {Array.<SymbolObject>} symbolIds - Array of objects to create the symbols
+     * @param {number} reels - number of reels
+     * @param {number} rows - number of symbols in view
      */
     createSymbols(symbolIds, reels, rows) {
         const maxSymbols = reels * rows;
@@ -29,8 +37,9 @@ class SymbolStore {
     }
 
     /**
+     * get a random symbol from the store
      * 
-     * @returns 
+     * @returns {Symbol}
      */
     getRandomSymbol() {
         const symbolId = Math.floor(Math.random() * this._symbols.size);
@@ -38,9 +47,10 @@ class SymbolStore {
     }
 
     /**
+     * get a specific symbol type based on id
      * 
-     * @param {*} id 
-     * @returns 
+     * @param {number} id - id of the symbol to retrieve
+     * @returns {Symbol}
      */
     getSymbol(id) {
         if (this._symbols.has(id)) {
@@ -50,8 +60,9 @@ class SymbolStore {
     }
 
     /**
+     * return a used symbol to the store ready for reuse
      * 
-     * @param {*} symbol 
+     * @param {Symbol} symbol - symbol to return to the store
      */
     returnSymbol(symbol) {
         symbol.reset();

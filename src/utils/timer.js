@@ -1,11 +1,13 @@
 /**
+ * simple timer class 
  * 
+ * @class
  */
 export class Timer {
     /**
      * 
-     * @param {*} delay 
-     * @param {*} callback 
+     * @param {number} delay - number of millisectonds to wait before completing
+     * @param {function} callback - call back function to call when timer is finished
      */
     constructor(delay, callback) {
         this._delay = delay;
@@ -15,9 +17,10 @@ export class Timer {
     }
 
     /**
+     * update called each frame
      * 
-     * @param {*} delta 
-     * @returns 
+     * @param {number} delta - number of milliseconds since last update
+     * @returns {boolean}
      */
     update(delta) {
         this._count += delta;

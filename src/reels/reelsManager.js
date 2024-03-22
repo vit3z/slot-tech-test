@@ -4,9 +4,18 @@ import { Base } from "../base.js";
 import { timerManager } from "../utils/timermanager.js";
 
 /**
+ * Reel manager controls multipler reels 
  * 
+ * @class
  */
 export class ReelManager extends Base {
+    /**
+     * 
+     * @param {number} numberOfReels - number of reel instanses to create
+     * @param {number} symbolsPerReel - number of reels in view for each reel created
+     * @param {number} reelWidth - width of each reel to position created reels correctly
+     * @param {number} symbolHeight - height of each symbol
+     */
     constructor(numberOfReels, symbolsPerReel, reelWidth, symbolHeight) {
         super();
         this._numberOfReels = numberOfReels;
@@ -18,9 +27,9 @@ export class ReelManager extends Base {
     }
 
     /**
-     * 
+     * Start the reels spinning called when button is clicked
      */
-    async startSpin() {
+    startSpin() {
         if (this._spinning) {
             return;
         }
@@ -28,8 +37,19 @@ export class ReelManager extends Base {
         this._reels.forEach(reel => {
             reel.startSpin();
         });
+       
+    }
+
+    /**
+     * Stop the reels spinning
+     * 
+     * @async
+     */
+    async stopSpin() {
+        if (!this._spinning) {
+            return;
+        }
         this._promises = [];
-        await timerManager.startTimer(2000);
         this._promises.push(this._reels[0].stopSpin());
         await timerManager.startTimer(250);
         this._promises.push(this._reels[1].stopSpin());
@@ -42,7 +62,9 @@ export class ReelManager extends Base {
     }
 
     /**
+     * Create the reelManager using PIXI container and required reel instances
      * 
+     * @private
      */
     _create() {
         this._native = new PIXI.Container("reelManager");
@@ -53,7 +75,9 @@ export class ReelManager extends Base {
     }
 
     /**
+     * create reel mask to hide padding (out of view) symbols
      * 
+     * @private
      */
     _createMask() {
         this._mask = PIXI.Sprite.from("mask");
@@ -65,7 +89,9 @@ export class ReelManager extends Base {
     }
 
     /**
+     * Create reels
      * 
+     * @private
      */
     _createReels() {
         for(let i = 0; i < this._numberOfReels; i++ ) {

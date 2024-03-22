@@ -2,30 +2,41 @@ import * as PIXI from "pixi.js";
 import { Base } from "../base.js";
 
 /**
+ * Symbol 
  * 
+ * @class
+ * @extends Base
  */
 export class Symbol extends Base {
-    constructor(id,type) {
+    /**
+     * 
+     * @param {number} id - id used for the symbols
+     * @param {string} name - name of the symbol asset
+     */
+    constructor(id, name) {
         super();
-        this._create(id, type);
+        this._create(id, name);
     }
 
     /**
+     * Get the id of the symbol
      * 
+     * @member
+     * @readonly
      */
     get id() {
         return this._id;
     }
 
     /**
-     * 
+     * Play the symbol animation
      */
     play() {
         this._native.play();
     }
 
     /**
-     * 
+     * Reset the symbol and remove from parent object
      */
     reset(){
         this._native.parent.removeChild(this._native);       
@@ -34,14 +45,16 @@ export class Symbol extends Base {
     }
 
     /**
+     * create the Symbol using base PIXI objects and loaded animations
      * 
-     * @param {*} id 
-     * @param {*} type 
+     * @param {number} id - id used for the symbols
+     * @param {string} name - name of the symbol asset
+     * @private
      */
-    _create(id, type) {
+    _create(id, name) {
         this._id = id;
-        this._type = type;
-        const animations = PIXI.Assets.cache.get(this._type).data.animations;
-        this._native = PIXI.AnimatedSprite.fromFrames(animations[`${this._type}Win`]);
+        this._name = name;
+        const animations = PIXI.Assets.cache.get(this._name).data.animations;
+        this._native = PIXI.AnimatedSprite.fromFrames(animations[`${this._name}Win`]);
     }
 }

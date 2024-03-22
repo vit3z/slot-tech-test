@@ -7,36 +7,19 @@ import { timerManager } from "./utils/timermanager.js";
 import { Button } from "./button.js";
 
 /**
+ * Base entry point for the game
  * 
+ * @class
  */
 class Core {
-    /**
-     * 
-     */
     constructor() {        
         this._create();
-    }   
-
-    /**
-     * 
-     */
-    async _create() {
-        renderer.initialise({
-            antialias: false,
-            backgroundAlpha: 1,
-            backgroundColour: "#000000",
-            gameContainerDiv: document.getElementById("gameContainer"),
-            width: 1024,
-            height: 576
-        });
-        renderer.start();
-        timerManager.init();
-        await this.loadAssets();
-        this._createObjects(); 
     }
 
     /**
+     * load all assets required for the game
      * 
+     * @async
      */
     async loadAssets() {
         assetLoader.addToQueue({ alias: 'background', src: "./resource/@2x/gameBG_opt.png"});
@@ -58,7 +41,31 @@ class Core {
     }
 
     /**
+     * Create the renderer instance and initialise everything ready to play the game
      * 
+     * @async
+     * @private
+     */
+    async _create() {
+        renderer.initialise({
+            antialias: false,
+            backgroundAlpha: 1,
+            backgroundColour: "#000000",
+            gameContainerDiv: document.getElementById("gameContainer"),
+            width: 1024,
+            height: 576
+        });
+        renderer.start();
+        timerManager.init();
+        await this.loadAssets();
+        this._createObjects(); 
+    }
+
+    /**
+     * Create all game objecs ready to use
+     * 
+     * @async
+     * @private
      */
     async _createObjects() {
         const background = PIXI.Sprite.from("background");
@@ -96,8 +103,10 @@ class Core {
         this._reelManager = new ReelManager(3, 3, 125, 105);
         renderer.addChild(this._reelManager.native);
 
-        const button = new Button("playActive", () => {
-            this._reelManager.startSpin();
+        const button = new Button("playActive", async() => {
+            this._reelManager.startSpin();            
+            await timerManager.startTimer(2000);
+            this._reelManager.stopSpin();    
         });
         button.x = 475;
         button.y = 440;
@@ -108,5 +117,4 @@ class Core {
 
 window.startup = () => {
     const game = new Core();
-    
 };

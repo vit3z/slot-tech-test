@@ -5,13 +5,14 @@ import { Easings, Tween } from "../utils/tween.js";
 import { renderer } from "../renderer.js";
 
 /**
- * 
+ * Base reel class to handle a single reel spinning random symbols throuhg a reel apature
+ * @class
  */
 export class Reel extends Base {
     /**
      * 
-     * @param {*} numberOfSymbols 
-     * @param {*} symbolHeight 
+     * @param {number} numberOfSymbols - number of symbols in view on the reel
+     * @param {number} symbolHeight - height of each symbol
      */
     constructor(numberOfSymbols, symbolHeight) {
         super();
@@ -24,7 +25,9 @@ export class Reel extends Base {
     }
 
     /**
+     * Start the reels spinning
      * 
+     * @async
      */
     async startSpin() {
         if(this._spinning) {
@@ -37,10 +40,10 @@ export class Reel extends Base {
 
     }
 
-
-
     /**
+     * Start stopping the reel from spinning
      * 
+     * @async
      */
     async stopSpin() {
         this._stopping = true;        
@@ -50,7 +53,9 @@ export class Reel extends Base {
     }
 
     /**
+     * Tween reels to the final position and respone promise from stopSpin()
      * 
+     * @async
      */
     async stop() {
         await Tween.fromTo(this._native, 750, {y: 0, ease: Easings.Back.easeOut}, {y: this._symbolHeight}).startPromise();
@@ -62,7 +67,7 @@ export class Reel extends Base {
     }
 
     /**
-     * 
+     * reset all symbols to the correct positions
      */
     _repositionSymbols() {
         const paddingTop = this._symbols.length === this._symbolsInView + 2 ? 1 : 2;
@@ -70,7 +75,9 @@ export class Reel extends Base {
     }
 
     /**
+     * Create the reel using PIXI container and initial symbols
      * 
+     * @private
      */
     _create() {
         this._native = new PIXI.Container("reel");
@@ -87,8 +94,10 @@ export class Reel extends Base {
     }
 
     /**
+     * create the next symbol to spin through te appature either random or a specific id
      * 
-     * @param {*} symbolId 
+     * @param {number} [symbolId=null] - Symbol id to generate
+     * @private
      */
     _createNextSymbol(symbolId=null) {
         const symbol = symbolId === null ? symbolStore.getRandomSymbol() : symbolStore.getSymbol(symbolId);
@@ -98,8 +107,10 @@ export class Reel extends Base {
     }
 
     /**
+     * Update called each frame
      * 
-     * @returns 
+     * @async
+     * @private 
      */
     async _update() {
         if(!this._spinning) {
