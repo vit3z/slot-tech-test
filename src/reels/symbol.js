@@ -30,9 +30,19 @@ export class Symbol extends Base {
 
     /**
      * Play the symbol animation
+     * 
+     * @param {boolean} [loop=false] - loop the animation
      */
-    play() {
+    play(loop=false) {        
+        this._native.loop = loop;
         this._native.play();
+    }
+    
+    /**
+     * Stop the symbol animation
+     */
+    stop() {
+        this._native.stop();
     }
 
     /**
