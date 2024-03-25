@@ -39,12 +39,6 @@ We will be looking for:
 
 ## Submission 
 
-Replace the contents of this README.md with: 
-
-A covering note explaining the technology choices you have made. 
-
-Any instructions required to run your solution. 
-
 Email as an attachment or a link the git bundled repository showing your commit history with all your commits on the master branch: 
 
 ```
