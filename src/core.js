@@ -50,7 +50,7 @@ class Core {
         renderer.initialise({
             antialias: false,
             backgroundAlpha: 1,
-            backgroundColour: "#000000",
+            backgroundColour: '#000000',
             gameContainerDiv: document.getElementById("gameContainer"),
             width: 1024,
             height: 576
@@ -68,6 +68,13 @@ class Core {
      * @private
      */
     async _createObjects() {
+
+        const graphics = new PIXI.Graphics();
+        graphics.beginFill(0x1099bb);
+        graphics.drawRect(0, 0, 1024, 300);
+        graphics.endFill();
+        renderer.addChild(graphics);
+
         const background = PIXI.Sprite.from("background");
         renderer.addChild(background);
 

@@ -141,11 +141,8 @@ class Renderer {
     _create() {
 
         this._pixi = new PIXI.Application({
-            antialias: this._antialias,
             autoStart: true,
-            clearBeforeRender: false,
-            backgroundAlpha: this._backgroundAlpha,
-            backgroundColor: this._backgroundColour,
+            background: this._backgroundColour,
             height: this._initialHeight,
             resolution: 1,
             width: this._initialWidth

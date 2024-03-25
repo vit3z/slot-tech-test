@@ -35974,11 +35974,8 @@ void main(void)\r
       _create() {
 
           this._pixi = new Application({
-              antialias: this._antialias,
               autoStart: true,
-              clearBeforeRender: false,
-              backgroundAlpha: this._backgroundAlpha,
-              backgroundColor: this._backgroundColour,
+              background: this._backgroundColour,
               height: this._initialHeight,
               resolution: 1,
               width: this._initialWidth
@@ -36150,23 +36147,23 @@ void main(void)\r
    * 
    */
   class AssetLoader {
-      /**
-       * 
-       */
       constructor() {
           this._queue =[];
       }
 
       /**
+       * add an asset to the queue of assets to load using PIXI
        * 
-       * @param {*} asset 
+       * @param {*} asset - any asset we need to load 
        */
       addToQueue(asset) {
           this._queue.push(asset);
       }
 
       /**
+       * lead all assets added to the queue and reset the to the queue
        * 
+       * @async
        */
       async loadQueue() {
           await Assets.load(this._queue);
@@ -36177,7 +36174,9 @@ void main(void)\r
   const assetLoader = new AssetLoader();
 
   /**
+   * Base class to add sin=mple getters and setters for classes that create PIXI object as this._native
    * 
+   * @class
    */
   class Base {
       /**
@@ -36188,7 +36187,8 @@ void main(void)\r
       }    
 
       /**
-       * 
+       * set the x parameter on the natiove pixi object
+       * @member
        */
       get x() {
           return this._native.x;
@@ -36198,7 +36198,8 @@ void main(void)\r
       }
       
       /**
-       * 
+       * set the y parameter on the natiove pixi object
+       * @member
        */
       get y() {
           return this._native.y;
@@ -36208,7 +36209,9 @@ void main(void)\r
       }
 
       /**
-       * 
+       * get the base pixi object
+       * @member
+       * @readonly
        */
       get native() {
           return this._native;
@@ -36216,30 +36219,51 @@ void main(void)\r
   }
 
   /**
+   * Symbol 
    * 
+   * @class
+   * @extends Base
    */
   let Symbol$1 = class Symbol extends Base {
-      constructor(id,type) {
+      /**
+       * 
+       * @param {number} id - id used for the symbols
+       * @param {string} name - name of the symbol asset
+       */
+      constructor(id, name) {
           super();
-          this._create(id, type);
+          this._create(id, name);
       }
 
       /**
+       * Get the id of the symbol
        * 
+       * @member
+       * @readonly
        */
       get id() {
           return this._id;
       }
 
       /**
+       * Play the symbol animation
        * 
+       * @param {boolean} [loop=false] - loop the animation
        */
-      play() {
+      play(loop=false) {        
+          this._native.loop = loop;
           this._native.play();
+      }
+      
+      /**
+       * Stop the symbol animation
+       */
+      stop() {
+          this._native.stop();
       }
 
       /**
-       * 
+       * Reset the symbol and remove from parent object
        */
       reset(){
           this._native.parent.removeChild(this._native);       
@@ -36248,20 +36272,30 @@ void main(void)\r
       }
 
       /**
+       * create the Symbol using base PIXI objects and loaded animations
        * 
-       * @param {*} id 
-       * @param {*} type 
+       * @param {number} id - id used for the symbols
+       * @param {string} name - name of the symbol asset
+       * @private
        */
-      _create(id, type) {
+      _create(id, name) {
           this._id = id;
-          this._type = type;
-          const animations = Assets.cache.get(this._type).data.animations;
-          this._native = AnimatedSprite.fromFrames(animations[`${this._type}Win`]);
+          this._name = name;
+          const animations = Assets.cache.get(this._name).data.animations;
+          this._native = AnimatedSprite.fromFrames(animations[`${this._name}Win`]);
       }
   };
 
   /**
+   * @typedef SymbolObject
+   * @property {number} id - Id of the symbol
+   * @property {string} name - name of the symbol
+   */
+
+  /**
+   * Symbol store used to create all symbols at initialisation for use through the game
    * 
+   * @class
    */
   class SymbolStore {
       constructor() {
@@ -36270,9 +36304,9 @@ void main(void)\r
 
       /**
        * 
-       * @param {*} symbolIds 
-       * @param {*} reels 
-       * @param {*} rows 
+       * @param {Array.<SymbolObject>} symbolIds - Array of objects to create the symbols
+       * @param {number} reels - number of reels
+       * @param {number} rows - number of symbols in view
        */
       createSymbols(symbolIds, reels, rows) {
           const maxSymbols = reels * rows;
@@ -36289,8 +36323,9 @@ void main(void)\r
       }
 
       /**
+       * get a random symbol from the store
        * 
-       * @returns 
+       * @returns {Symbol}
        */
       getRandomSymbol() {
           const symbolId = Math.floor(Math.random() * this._symbols.size);
@@ -36298,9 +36333,10 @@ void main(void)\r
       }
 
       /**
+       * get a specific symbol type based on id
        * 
-       * @param {*} id 
-       * @returns 
+       * @param {number} id - id of the symbol to retrieve
+       * @returns {Symbol}
        */
       getSymbol(id) {
           if (this._symbols.has(id)) {
@@ -36310,8 +36346,9 @@ void main(void)\r
       }
 
       /**
+       * return a used symbol to the store ready for reuse
        * 
-       * @param {*} symbol 
+       * @param {Symbol} symbol - symbol to return to the store
        */
       returnSymbol(symbol) {
           symbol.reset();
@@ -36321,9 +36358,6 @@ void main(void)\r
 
   const symbolStore = new SymbolStore();
 
-  /**
-   * 
-   */
   const Easings = Object.freeze({
       Linear: Power0,
       Quad: Power1,
@@ -36340,6 +36374,7 @@ void main(void)\r
       Stepped: SteppedEase,
       Rough: RoughEase
   });
+
 
   class Tween {
        /**
@@ -36391,13 +36426,14 @@ void main(void)\r
   }
 
   /**
-   * 
+   * Base reel class to handle a single reel spinning random symbols throuhg a reel apature
+   * @class
    */
   class Reel extends Base {
       /**
        * 
-       * @param {*} numberOfSymbols 
-       * @param {*} symbolHeight 
+       * @param {number} numberOfSymbols - number of symbols in view on the reel
+       * @param {number} symbolHeight - height of each symbol
        */
       constructor(numberOfSymbols, symbolHeight) {
           super();
@@ -36410,7 +36446,9 @@ void main(void)\r
       }
 
       /**
+       * Start the reels spinning
        * 
+       * @async
        */
       async startSpin() {
           if(this._spinning) {
@@ -36423,10 +36461,10 @@ void main(void)\r
 
       }
 
-
-
       /**
+       * Start stopping the reel from spinning
        * 
+       * @async
        */
       async stopSpin() {
           this._stopping = true;        
@@ -36436,7 +36474,9 @@ void main(void)\r
       }
 
       /**
+       * Tween reels to the final position and respone promise from stopSpin()
        * 
+       * @async
        */
       async stop() {
           await Tween.fromTo(this._native, 750, {y: 0, ease: Easings.Back.easeOut}, {y: this._symbolHeight}).startPromise();
@@ -36448,7 +36488,7 @@ void main(void)\r
       }
 
       /**
-       * 
+       * reset all symbols to the correct positions
        */
       _repositionSymbols() {
           const paddingTop = this._symbols.length === this._symbolsInView + 2 ? 1 : 2;
@@ -36456,7 +36496,9 @@ void main(void)\r
       }
 
       /**
+       * Create the reel using PIXI container and initial symbols
        * 
+       * @private
        */
       _create() {
           this._native = new Container("reel");
@@ -36473,8 +36515,10 @@ void main(void)\r
       }
 
       /**
+       * create the next symbol to spin through te appature either random or a specific id
        * 
-       * @param {*} symbolId 
+       * @param {number} [symbolId=null] - Symbol id to generate
+       * @private
        */
       _createNextSymbol(symbolId=null) {
           const symbol = symbolId === null ? symbolStore.getRandomSymbol() : symbolStore.getSymbol(symbolId);
@@ -36484,8 +36528,10 @@ void main(void)\r
       }
 
       /**
+       * Update called each frame
        * 
-       * @returns 
+       * @async
+       * @private 
        */
       async _update() {
           if(!this._spinning) {
@@ -36510,13 +36556,15 @@ void main(void)\r
   }
 
   /**
+   * simple timer class 
    * 
+   * @class
    */
   class Timer {
       /**
        * 
-       * @param {*} delay 
-       * @param {*} callback 
+       * @param {number} delay - number of millisectonds to wait before completing
+       * @param {function} callback - call back function to call when timer is finished
        */
       constructor(delay, callback) {
           this._delay = delay;
@@ -36526,9 +36574,10 @@ void main(void)\r
       }
 
       /**
+       * update called each frame
        * 
-       * @param {*} delta 
-       * @returns 
+       * @param {number} delta - number of milliseconds since last update
+       * @returns {boolean}
        */
       update(delta) {
           this._count += delta;
@@ -36543,12 +36592,11 @@ void main(void)\r
   }
 
   /**
+   * timer manager creates and manages any timers 
    * 
+   * @class
    */
   class TimerManager {
-      /**
-       * 
-       */
       constructor() {
           this._masterTime = 0;
           this._timers = [];
@@ -36556,7 +36604,7 @@ void main(void)\r
       }
       
       /**
-       * 
+       * links timer manager to pixi ticker updates
        */
       init() {
           renderer.app.ticker.add(() => {            this._onUpdate(renderer.app.ticker.elapsedMS);
@@ -36564,9 +36612,10 @@ void main(void)\r
       }
 
       /**
+       * Start an awaitable timer
        * 
-       * @param {*} delay 
-       * @returns 
+       * @param {number} delay - delay in milliseconds
+       * @async
        */
       async startTimer(delay) {
           const promise = new Promise((resolve) => {
@@ -36578,8 +36627,10 @@ void main(void)\r
       }
 
       /**
+       * update called every frame
        * 
-       * @param {*} delta 
+       * @param {number} delta - number of milliseconds since last update call
+       * @private
        */
       _onUpdate(delta) {
 
@@ -36599,9 +36650,18 @@ void main(void)\r
   const timerManager = new TimerManager();
 
   /**
+   * Reel manager controls multipler reels 
    * 
+   * @class
    */
   class ReelManager extends Base {
+      /**
+       * 
+       * @param {number} numberOfReels - number of reel instanses to create
+       * @param {number} symbolsPerReel - number of reels in view for each reel created
+       * @param {number} reelWidth - width of each reel to position created reels correctly
+       * @param {number} symbolHeight - height of each symbol
+       */
       constructor(numberOfReels, symbolsPerReel, reelWidth, symbolHeight) {
           super();
           this._numberOfReels = numberOfReels;
@@ -36613,9 +36673,9 @@ void main(void)\r
       }
 
       /**
-       * 
+       * Start the reels spinning called when button is clicked
        */
-      async startSpin() {
+      startSpin() {
           if (this._spinning) {
               return;
           }
@@ -36623,8 +36683,19 @@ void main(void)\r
           this._reels.forEach(reel => {
               reel.startSpin();
           });
+         
+      }
+
+      /**
+       * Stop the reels spinning
+       * 
+       * @async
+       */
+      async stopSpin() {
+          if (!this._spinning) {
+              return;
+          }
           this._promises = [];
-          await timerManager.startTimer(2000);
           this._promises.push(this._reels[0].stopSpin());
           await timerManager.startTimer(250);
           this._promises.push(this._reels[1].stopSpin());
@@ -36637,7 +36708,9 @@ void main(void)\r
       }
 
       /**
+       * Create the reelManager using PIXI container and required reel instances
        * 
+       * @private
        */
       _create() {
           this._native = new Container("reelManager");
@@ -36648,7 +36721,9 @@ void main(void)\r
       }
 
       /**
+       * create reel mask to hide padding (out of view) symbols
        * 
+       * @private
        */
       _createMask() {
           this._mask = Sprite.from("mask");
@@ -36660,7 +36735,9 @@ void main(void)\r
       }
 
       /**
+       * Create reels
        * 
+       * @private
        */
       _createReels() {
           for(let i = 0; i < this._numberOfReels; i++ ) {
@@ -36672,13 +36749,29 @@ void main(void)\r
       }
   }
 
+  /**
+   * Basic button class creates a sprite object and adds interaction callback
+   * 
+   * @class
+   */
   class Button extends Base {
-      
+      /**
+       * 
+       * @param {string} image - image name or alias from assets already loaded
+       * @param {function} onClick - call back function when clicked
+       */
       constructor(image, onClick) {
           super();
           this._create(image, onClick);
       }
 
+      /**
+       * create the button object
+       * 
+       * @param {string} image - image name or alias from assets already loaded
+       * @param {function} onClick - call back function when clicked
+       * @private
+       */
       _create(image, onClick) {
           this._native = Sprite.from(image);
           this._native.eventMode = 'static';
@@ -36691,36 +36784,19 @@ void main(void)\r
   }
 
   /**
+   * Base entry point for the game
    * 
+   * @class
    */
   class Core {
-      /**
-       * 
-       */
       constructor() {        
           this._create();
-      }   
-
-      /**
-       * 
-       */
-      async _create() {
-          renderer.initialise({
-              antialias: false,
-              backgroundAlpha: 1,
-              backgroundColour: "#000000",
-              gameContainerDiv: document.getElementById("gameContainer"),
-              width: 1024,
-              height: 576
-          });
-          renderer.start();
-          timerManager.init();
-          await this.loadAssets();
-          this._createObjects(); 
       }
 
       /**
+       * load all assets required for the game
        * 
+       * @async
        */
       async loadAssets() {
           assetLoader.addToQueue({ alias: 'background', src: "./resource/@2x/gameBG_opt.png"});
@@ -36742,9 +36818,40 @@ void main(void)\r
       }
 
       /**
+       * Create the renderer instance and initialise everything ready to play the game
        * 
+       * @async
+       * @private
+       */
+      async _create() {
+          renderer.initialise({
+              antialias: false,
+              backgroundAlpha: 1,
+              backgroundColour: '#000000',
+              gameContainerDiv: document.getElementById("gameContainer"),
+              width: 1024,
+              height: 576
+          });
+          renderer.start();
+          timerManager.init();
+          await this.loadAssets();
+          this._createObjects(); 
+      }
+
+      /**
+       * Create all game objecs ready to use
+       * 
+       * @async
+       * @private
        */
       async _createObjects() {
+
+          const graphics = new Graphics();
+          graphics.beginFill(0x1099bb);
+          graphics.drawRect(0, 0, 1024, 300);
+          graphics.endFill();
+          renderer.addChild(graphics);
+
           const background = Sprite.from("background");
           renderer.addChild(background);
 
@@ -36780,8 +36887,10 @@ void main(void)\r
           this._reelManager = new ReelManager(3, 3, 125, 105);
           renderer.addChild(this._reelManager.native);
 
-          const button = new Button("playActive", () => {
-              this._reelManager.startSpin();
+          const button = new Button("playActive", async() => {
+              this._reelManager.startSpin();            
+              await timerManager.startTimer(2000);
+              this._reelManager.stopSpin();    
           });
           button.x = 475;
           button.y = 440;
@@ -36792,7 +36901,6 @@ void main(void)\r
 
   window.startup = () => {
       new Core();
-      
   };
 
 })();
