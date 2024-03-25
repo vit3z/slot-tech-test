@@ -1,9 +1,9 @@
 # Core Gaming HTML5/JavaScript Games Developer - Tech Test 
 
 ## Setup
-you will require node/npm. Run npm install on the package to install all required node_modules.
-to build a bundle use `npm run build`
-you will need some local server sunce as Live Server for visual studio code or https://www.npmjs.com/package/http-server
+* You will require node/npm. Run npm install on the package to install all required node_modules.
+* To build a bundle use `npm run build`
+* You will need a local server such as Live Server for visual studio code or https://www.npmjs.com/package/http-server
 
 
 ## The Test 
