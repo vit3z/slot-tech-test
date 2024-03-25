@@ -5,7 +5,8 @@ export default {
 	input: 'src/core.js',
 	output: {
 		file: 'bundle.js',
-		format: 'iife'
+		format: 'iife',
+        sourcemap: true
 	},
 	plugins: [  
         nodeResolve({
